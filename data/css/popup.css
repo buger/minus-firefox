@@ -1,0 +1,587 @@
+* {
+    outline: 0 !important;
+}
+
+input {
+    border: 1px solid #ccc;
+}
+
+a, a:visited {
+    text-decoration: none;
+    color:#555;
+}
+
+a:hover {
+    text-decoration: underline;
+    color: #2200C1;
+}
+
+body {
+    width: 380px;
+    margin: 0;
+    font-family: helvetica, arial;
+    font-size: 14px;
+
+    overflow: hidden;
+    background: url(../images/popup_bg.png) repeat-x;
+}
+
+#signin {
+    width: 542px; 
+    height: 330px !important;
+    height: 100%; 
+    background: white; 
+    border: 0px solid #ddd;    
+    border-top: 1px solid rgba(0,0,0,0);
+    border-bottom: 2px solid #ddd;        
+    border-radius: 3px;
+    z-index: 9999999; 
+    background: url(../images/signup_bg.png);    
+}
+
+#signin .error {
+    color: red;
+    text-align: center;
+    font-weight: bold;
+    font-size: 14px;
+    height: 20px;
+}
+
+#signin .relative {
+    margin-top: 0px;
+}
+
+#signin form {
+    float: left;
+    position: relative;
+    width: 242px;
+    height: 220px;
+    padding-left: 28px;
+}
+
+#signin form h3 {
+    font-size: 19px;
+    font-family: helvetica, arial;
+    font-weight: bold;    
+    color: #666;
+    padding-bottom: 15px;
+}
+
+#signin form span {
+    display: block;
+    font-size: 13px;
+    color: #666;
+    opacity: 0.8;
+    padding-bottom: 8px;
+    padding-top: 10px;
+}
+
+#signin form label {
+    display: block;
+    font-size: 11px;
+    color: #666;
+}
+
+#signin form label input {
+    vertical-align: bottom;    
+}
+
+#signin .logo {
+    text-align: center;
+    background: url(../images/popup_logo.png?1) center no-repeat;
+    height: 44px;
+    padding: 15px;
+}
+
+#signin form.error input {
+    border: 1px solid red;
+}
+
+#signin form input[type=text], #signin form input[type=password] {
+    width: 195px;
+    border: 1px solid #ccc;
+    padding: 12px;
+    margin-bottom: 6px;
+}
+
+#signin form input[type=submit] {
+    position: absolute;
+    bottom: 0px;
+    right: 20px;
+
+    cursor: pointer;
+    background: url(../images/button_bg.png);
+    border: none;
+    width: 102px;
+    height: 32px;
+    padding: 6px 8px;
+    text-align: center;
+    font-weight: bold;
+    color: #363636;
+    font-size: 16px;
+}
+
+#signin form input[type=submit]:hover {
+    color: #f19600; 
+}
+
+#signin .signin {
+    background: url(../images/separator.png) center right no-repeat;
+}
+
+#header {    
+    padding-left: 10px;
+    position: relative;
+    z-index: 999999;
+    margin-top: 10px;
+}
+
+#header .more {
+    width: 62px;
+    height: 47px;
+    
+    position: absolute;
+    top: 0px;
+    right: 10px;    
+
+    text-align: center;
+    font-size: 20px;    
+
+    background: white;
+
+    
+    background-image: url(../images/gear.png), url(../images/take_screenshot.png);
+    background-repeat: no-repeat, repeat-x;    
+    background-position: center, top center;
+}
+
+#header .more.hover {
+    text-decoration: none;
+    cursor: pointer;
+    opacity: 1;
+
+    z-index: 99999;
+
+    background: white url(../images/gear.png) center 10px no-repeat;
+    border: 2px solid #666;
+    border-bottom: none;
+
+    width: 58px;
+    height: 47px;
+
+    box-shadow: 0 0 3px 1px #ccc;
+}
+
+#header .more.hover img {
+    opacity: 1;
+}
+
+#header .more > div {
+    position: absolute;
+
+    top: 45px;
+    right: -2px;
+
+    width: 225px;
+
+    background: white;
+    border: 2px solid #666;
+
+    font-size: 16px;
+    text-align: left;
+    
+    z-index: 9999;
+    opacity: 1;    
+    
+    box-shadow: 0 0 3px 1px #ccc;    
+    
+    padding-top: 8px;
+}
+
+#header .connector {
+    position: absolute;
+    right: -2px;
+    top: -5px;
+    height: 5px;
+    width: 58px;
+    background: white;
+    border-left: 2px solid #666;
+    border-right: 2px solid #666;
+}
+
+#header .more > div li {
+    padding: 8px 10px;
+    color: #999;
+    font-size: 13px;
+}
+
+#header .more > div li:hover span, #header .more > div li:hover label {
+    color: #f7931e;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+#header .more > div span {
+    float: right;
+    font-size: 12px;
+    color: #666;
+    font-weight: bold;
+}
+
+#header .more .edit_image_config {
+    margin-top: 10px;
+
+    border-top: 1px solid #ccc;
+    line-height: 12px;
+}
+
+#header .more .options {
+    cursor: pointer;
+    font-size: 14px;
+}
+
+#header .more .edit_image_config input {
+    vertical-align: middle;
+}
+
+#header .more .edit_image_config label {
+    cursor: pointer;
+    margin-left: 5px;
+    font-size: 11px;
+    text-transform: uppercase;
+    vertical-align: middle;
+}
+
+#timeline {
+    background: url(../images/dashboard.png);
+    margin: 0px 10px;
+    height: 22px;
+    width: 361px;    
+    text-transform: uppercase;
+
+    font-size: 12px;
+    
+    color: #999;
+    font-weight: bold;
+
+    padding-top: 7px;
+
+    cursor: default;
+
+    font-weight: bold;
+}
+
+#timeline span {
+    margin-right: 33px;
+    margin-left: 15px;
+}
+
+#timeline a {
+    color: #999;
+    margin-right: 16px;
+    cursor: pointer;
+}
+
+#timeline a.active {
+    color: #333;
+}
+
+
+#latest_file input {
+    width: 210px;
+    margin-left: 5px;
+}
+
+#galleries_container {
+    margin: 0;
+    height: auto;
+    max-height: 380px;
+    min-height: 100px;
+    width: 100%;
+    overflow-x: hidden;
+    
+    margin-top: 10px;
+}
+
+#my_galleries {
+    margin:0;
+    padding:0;
+    list-style: none;
+
+    width: 100%;
+}
+
+#my_galleries li {
+    padding: 8px;
+    margin-top: 5px;
+    margin-bottom: 10px;
+
+    border: 1px solid #cecece;
+    box-shadow: 0 0 3px 1px rgba(200,200,200, 0.3);
+
+    position: relative;
+
+    margin-left: 10px;
+    margin-right: 10px;
+
+    width: 324px;
+    height: 60px;
+    
+    background: #fff;
+    font-weight: bold;
+}
+
+#my_galleries li.loader {
+    background: url(../images/loading.gif) center no-repeat;
+    margin-left: 30px;
+    height: 30px;
+    box-shadow: none;
+    border: none;
+}
+
+#my_galleries li .preview {
+    padding-right: 10px;
+}
+
+#my_galleries li .action {
+    position: relative;
+}
+
+#my_galleries li .action img {
+    position: absolute;
+    top: -9px;
+    right: -9px;
+}
+
+#my_galleries li .action a {
+    cursor: pointer;
+}
+
+#my_galleries li .action a:hover {
+}
+
+#my_galleries li .creator {
+    font-size: 12px;
+    color: #999;
+    cursor: default;
+}
+
+#my_galleries li .creator a {
+    color: #f19600;
+    cursor: pointer;
+}
+
+#my_galleries .name {
+    max-width: 215px;
+    display: inline-block;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    color: #333;
+    font-size: 15px;
+}
+
+#my_galleries .share_link {
+    background: #eee;    
+    width: 185px;
+}
+
+#my_galleries .items {
+    margin-right: 0px;
+    font-size: 12px;
+    font-family: Arial;
+    color: #999;
+    white-space: nowrap;
+    cursor: default;
+}
+
+#my_galleries .items.dot {
+}
+
+#take_screenshot {
+    display: block;
+    width: 286px;
+
+    cursor: pointer;
+
+    font-size: 22px;
+    font-weight: bold;
+
+    color: #666;
+    
+    background-image: url(../images/btn_camera_gray.png), url(../images/take_screenshot.png);
+    background-repeat: no-repeat, repeat-x;    
+    background-position: 15px 12px, top left;
+
+    border: 0 !important;
+    padding: 10px 15px;    
+    padding-left: 60px;
+
+    padding-bottom: 10px;
+
+    text-align: left;
+}
+
+#take_screenshot:hover {
+    color: #333;
+    
+    background-image: url(../images/btn_camera_normal.png), url(../images/take_screenshot.png);
+}
+
+.loading #take_screenshot {
+    text-indent: -99999px;
+    background: url(../images/loading.gif) center no-repeat;
+}
+
+.loading .more {
+    display: none;
+}
+
+h4 {
+    margin: 0;
+    padding: 0px 5px;
+}
+
+a.button {
+    padding: 10px 14px;
+    margin-right: 2px;
+    border: 1px solid #ccc;
+    border-radius: 2px;
+
+    font-size: 20px;
+    
+    background: #fff;
+
+    text-align: center;
+}
+
+a.button:hover {
+    text-decoration: none;
+    
+    background: #eee;
+    
+    color: #333;
+}
+
+.center {
+    text-align: center;
+}
+
+#footer {
+    clear: both;
+    height: 25px;
+    margin-top: 5px;
+    padding-top: 6px;
+    padding-bottom: 9px;    
+    margin-left: 10px;
+
+    position: relative;
+
+    background: url(../images/bottom.png) top left no-repeat;    
+}
+
+#footer * {
+    float: left;
+}
+
+#footer img {
+    vertical-align: middle;
+    margin-left: 10px;
+}
+
+#footer a.minus_link {
+    position: absolute;
+    bottom: 9px;
+    right: 60px;
+    width: 80px;
+    font-size: 13px;
+}
+
+#footer .options {
+    font-size: 12px;
+    font-weight: bold;
+    color: #000;
+    opacity: 0.7;
+    margin-left: 10px;
+}
+
+#user, #signout {
+    font-size: 11px;
+    font-weight: bold;
+    color: #999;
+    margin-right: 18px;
+    float: right;    
+    padding-top: 3px;
+
+    text-transform: uppercase;
+}
+
+#user {
+    text-align: left;
+    margin-left: 80px;
+}
+
+#user:hover, #signout:hover {
+    color: #333;
+    text-decoration: none;
+}
+
+#signout {
+    position: absolute;
+    right: 5px;
+    bottom: 10px;
+    font-size: 12px;
+    font-weight: normal;
+}
+
+#loader {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    height: 100%;
+    width: 100%;
+    background: rgba(200,200,200, 0.4); 
+    font-size: 16px;
+    font-family: verdana, sans-serif;
+}
+
+#loader div {
+    margin-top: 25%;
+    background: url(../images/ajax-loader.gif) bottom center no-repeat;
+    margin-left: auto;
+    margin-right: auto;
+
+    width: 200px;
+    height: 20px;
+    text-align: center;
+}
+
+/************* Scrollbar ***************/
+.jspVerticalBar
+{
+	right: 6px;
+    border-radius: 3px;
+    background-color: #cbcbcd;
+}
+
+.jspDrag {
+    background: url(../images/scroll.png) no-repeat;
+    width: 15px;
+    height: 87px;
+
+    left: -3px;
+}
+
+/********** Opera css ***********/
+
+.opera #take_screenshot {
+    display: none;
+}
+
+.opera #header span {
+    display: none;
+}
+
+.opera #header:after {
+    content: "";
+}

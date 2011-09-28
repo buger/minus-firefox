@@ -1,0 +1,166 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <link rel="stylesheet" type="text/css" href="css/reset-min.css">
+        <link rel="stylesheet" href="css/jquery.jscrollpane.css" />
+        <link rel="stylesheet" href="css/popup.css?1" />
+
+        <script id="galleries_template" type="text/x-jquery-tmpl"> 
+            {{each galleries}}
+            <li {{if $value.id == 'Unavailable'}}class="not_editable"{{/if}}>
+                <table cellspacing="0" cellpadding="0" width="100%">
+                    <tr>                    
+                        <td width="95px" class="preview" rowspan="3" valign="top" align="center">
+                            <a target='_blank' href='http://minus.com/m${$value.id}'>
+                                <img data-image='${$value.thumbnail_url}' 
+                                     src="images/loading.gif" 
+                                     style="max-width: 95px; max-height: 60px;" />
+                            </a>
+                        </td>
+                        <td class="header">
+                            <a class='name' target='_blank' href='http://minus.com/m${$value.id}'>${$value.name||'Untitled'}</a>
+                        </td>
+                        <td class="action" rowspan="3" valign="top" align="right">
+                            {{if $value.is_public}}
+                            <img src="images/public_bage.png" width="54px" height="54px" title="Public gallery" />
+                            {{/if}}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="creator">
+                            {{if $value.creator_name}}
+                            <span>by: </span><a href='${$value.creator}' target='_blank'>${$value.creator_name}</a>
+                            {{/if}}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td valign="bottom" style="position: relative;">
+                            <span class="items count">                    
+                            {{if $value.file_count > 0}}
+                                {{if $value.file_count == 1 }}
+                                    1 file
+                                {{else}}
+                                    ${$value.file_count} files
+                                {{/if}}
+                            {{else}}
+                                empty
+                            {{/if}}
+                            </span>
+                            <span class="items dot">·</span>
+                            <span class="items clicks">                    
+                            {{if $value.view_count > 0}}
+                                {{if $value.view_count == 1 }}
+                                    1 view
+                                {{else}}
+                                    ${$value.view_count} views
+                                {{/if}}
+                            {{else}}
+                                0 views
+                            {{/if}}
+                            </span>
+                            <span class="items dot">·</span>
+                            <span class="items date" title="${$value.date_last_updated}"> 
+                            </span>
+                        </td>
+                    </tr>
+                </table>
+            </li>
+            {{/each}}
+        </script>
+    </head>
+    <body>
+        <div id="signin" style="display: none">
+            <div class="logo"> 
+            </div>            
+            <div class='relative'>
+                <div class='error'></div>
+                <form class="signin">
+                    <h3>Sign In</h3>
+                    <input type="text" name="username" placeholder="Username" />
+                    <input type="password" name="password" placeholder="Password" /> 
+
+                    <label>
+                        <input type="checkbox" name="remember" checked />
+                        Remember me.
+                    </label>
+
+                    <input type="submit" value="Sign In" />
+                </form>
+                <form class="signup">
+                    <h3>Sign Up</h3>
+                    <input type="text" name="username" placeholder="Username" />
+                    <input type="password" name="password" placeholder="Password" /> 
+                    <input type="text" name="email" placeholder="Email (Optional)" /> 
+
+                    <input type="submit" value="Sign Up"/>
+                </div>                
+            </div>
+        </div>
+
+        <div id="main_content">
+            <div id="header">
+                <div href="#" id="take_screenshot" class='button'>
+                    <span>Take Screenshot</span>
+                </div>
+
+                <div class="more">
+                    <div style="display: none">
+                        <div class="connector"></div>
+
+                        <ul>
+                            <li data-screenshot-type="visible">
+                                <label>Visible Part of Page</label>
+                                <span>Ctrl+Alt+V</span>
+                            </li>
+
+                            <li data-screenshot-type="region">
+                                <label>Selected Area</label>
+                                <span>Ctrl+Alt+R</span>
+                            </li>
+
+                            <li data-screenshot-type="full">
+                                <label>Entire page</label>
+                                <span>Ctrl+Alt+H</span>
+                            </li>
+
+                            <li class="edit_image_config">
+                                <input type="checkbox" id="edit_image"/>
+                                <label for="edit_image">Edit image before uploading</label>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div id="timeline">
+                <span>Dashboard</span>
+
+                <a data-timeline='mine'>My Files</a>
+                <a data-timeline='feed'>Feed</a>
+            </div>
+
+            <div id="galleries_container">
+                <ul id="my_galleries">                
+                    <li class="loader"></li>
+                </ul>
+            </div>
+            <div id="footer">
+                <a href="http://minus.com" target="_blank"><img src="images/bottom_logo.png" width="60px"/></a>
+                <a id="user" target="_blank">profile</a>
+                <a href="http://min.us/pages/galleries" target="_blank" id="galleries_header" class="minus_link"></a>
+            </div>    
+        </div>
+
+
+        <script src="js/jquery.min.js"></script>
+        <script src="js/jquery.timeago.js"></script>
+        <script src="js/jquery.tmpl.min.js"></script>
+        <script src="js/jquery.mousewheel.js"></script>
+        <script src="js/jquery.jscrollpane.min.js"></script>
+        <script src="js/store.js"></script>
+
+        <script src="js/minus.js?1"></script>
+        <script src="js/browser_api.js"></script>
+        <script src="js/popup.js"></script>
+    </body>
+</html>

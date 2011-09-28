@@ -1,0 +1,301 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <link rel="stylesheet" type="text/css" href="css/reset-min.css">
+        <link rel="stylesheet" type="text/css" href="css/reset-context-min.css">
+        <link rel="stylesheet" type="text/css" href="css/chosen.css">
+
+        <style>
+            html, body {
+                background-color: #eee;
+                height: 100%;
+            }
+
+            #avpw_filter_eggs_panel {
+                visibility: hidden;
+            }
+
+            #avpw_save_container {
+                display: none;
+            }
+
+            #panel {
+                height: 40px;
+                width: 100%;
+                background: white;
+                border-bottom: 2px solid #ccc;
+
+                position: fixed;
+                z-index: 999999;
+
+                text-align: center;            
+            }
+
+            a.minus_button {
+                font-family: helvetica, arial, sans-serif;
+                background: #04C url(/smedia/minus/images/alert-overlay.png) repeat-x;                
+                display: inline-block;
+                color: white;
+                text-decoration: none;
+                -moz-border-radius: 5px;
+                -webkit-border-radius: 5px;
+                -moz-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+                -webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+                text-shadow: 0 -1px 1px rgba(0, 0, 0, 0.25);
+                border-bottom: 1px solid rgba(0, 0, 0, 0.25);
+                position: relative;
+                cursor: pointer;
+                padding: 5px 10px 6px;
+
+                font-size: 13px;
+                font-weight: 700;
+                line-height: 1;
+                text-shadow: 0 -1px 1px rgba(0, 0, 0, 0);
+
+                margin-left: 10px;
+            }
+
+            a.minus_button:hover {
+                background-color: #26F;
+            }
+
+            #panel select {
+                color: #000;
+                font-family: helvetica, arial;
+                width: 250px;
+            }
+
+            #panel .container {
+                display: inline-block; 
+                padding-top: 6px;
+                margin-left: 10px;
+                font-family: Arial;
+                text-align: left;                
+            }
+
+            #upload {
+                top: 0px;
+                float: right;
+                margin-top: 2px;
+            }
+
+        </style>
+    </head>
+    <body style="overflow-x: hidden; text-align: center;">
+        <div id="panel">
+            <div class="content">
+                <a href="http://minus.com" target="_blank"><img src="images/logo_big.png" height="" width="80px" style="position: absolute; left: 10px; top: 8px;"/></a>
+                <div class="container">
+                    <select id="gallery_list">
+                        <option value="new">Create new gallery</option>
+                        <option>Loading...</option>
+                    </select>
+                    <a id="upload" class="minus_button loading">Loading editor...</a>
+                </div>
+            </div>
+        </div>
+        <div style="height: 40px;"></div>
+
+        <img id="image_for_edit" style="max-width: 100%;" />
+        
+        <script src="js/jquery.min.js"></script>
+        <script src="js/chosen.jquery.min.js"></script>
+        <script src="js/browser_api.js"></script>
+        <script src="js/minus.js?1"></script>
+        
+        <script>
+            $('#gallery_list').chosen();
+
+            function queryParam(name){
+              name = name.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");
+              var regexS = "[\\?&]"+name+"=([^&#]*)";
+              var regex = new RegExp( regexS );
+              var results = regex.exec( window.location.href );
+              if( results == null )
+                return "";
+              else
+                return results[1];
+            }
+
+            $('#upload').bind('click', function(){
+                if ($(this).hasClass('loading')) return false;
+
+                $(this).addClass('loading').html('Uploading...');
+                
+                title = capture_data.tabtitle;
+
+                try {
+                    var canvas = $('canvas')[0];
+                    var imageData = canvas.toDataURL();
+                } catch(e) {
+                    var imageData = $('#image_for_edit')[0].src;
+                }
+
+                browser.postMessage({ method: "uploadScreenshot", imageData:canvas.toDataURL(), title:title, gallery:$('#gallery_list').val() },
+                    null,
+                    function() {
+                        window.close();
+                    }
+                );
+            });
+
+
+            var galleries = [];
+            var pages_loaded = 1;
+
+            function loadGalleries() {
+                browser.postMessage({ 
+                    method: 'updateGalleries', 
+                    timeline: 'mine', 
+                    page: 1
+                }, 
+                null,
+                function(response) {
+                    response = response.response;
+
+                    for (var i=1; i<=response.total_pages; i++) {
+                        (function(page){
+                            browser.postMessage({ 
+                                method: 'updateGalleries', 
+                                timeline: 'mine', 
+                                page: page
+                            },
+                            null,
+                            function(resp){
+                                resp = resp.response;
+
+                                $.each(resp.galleries, function(idx, item){
+                                    item.page = page;
+                                    item.idx = idx;
+
+                                    galleries.push(item);
+                                })
+
+                                pages_loaded += 1;
+                                
+                                if (pages_loaded == response.total_pages) {
+                                    galleries = galleries.sort(function(a,b){ return ((a.page*100+a.idx) - (b.page*100+b.idx)) });
+
+                                    var options = ["<option value='new'>Create new gallery</option>"];
+
+                                    $.each(galleries, function(idx, item) {
+                                        options.push("<option value='"+item.reader_id+"'>"+(item.name||"Untitled")+"</option>");
+                                    });
+
+                                    $('#gallery_list').html(options.join(""));
+
+                                    $('#gallery_list').trigger("liszt:updated");
+                                }
+                            });
+                        })(i)
+                    }
+                });
+            }
+
+            loadGalleries();
+            
+        </script>
+
+        <script type="text/javascript">          
+            var capture_data;
+
+            browser.postMessage({ 
+                method: 'getCaptureData'
+            }, 
+            null,    
+            function(msg) {            
+                capture_data = msg.response;
+                document.getElementById('image_for_edit').src = capture_data.data;
+            });
+
+            var _featherLoaded = false; 
+             
+            Feather_APIKey = '82b5cf913';
+            Feather_NoCloseButton = true;
+            Feather_Theme = 'silver'; 
+            Feather_EditOptions = 'all'; 
+            Feather_OpenType = 'float';
+            Feather_MaxSize = window.outerWidth;
+            Feather_MaxDisplaySize = 10000;
+            Feather_MaxSize = 10000;
+            Feather_CropSizes = '320x240,640x480,800x600,1280x1024'; 
+                  
+            Feather_OnSave = function(id, url) { 
+                var e = document.getElementById(id); 
+                e.src = url; 
+                aviaryeditor_close(); 
+            } 
+             
+            Feather_OnLoad = function() { 
+                _featherLoaded = true; 
+
+                launchEditor('image_for_edit')
+            } 
+
+            function aviary_step2() {
+                var img = document.getElementById('image_for_edit'); 
+
+                f = AV.controlsWidgetInstance.getScaledDims(img.width, img.height);
+                img.width = f.width;
+                img.height = f.height;
+                AV.paintWidgetInstance.setDimensions(img.width, img.height);
+                AV.paintWidgetInstance.setBackground(img);
+                avpw$(AV.paintWidgetInstance.canvas).insertBefore("#avpw_temp_loading_image");
+                avpw$("#avpw_temp_loading_image").remove();
+                AV.tempLoadingImageSrc = img.src;
+                AV.controlsWidgetInstance.showWaitThrobber(!1);
+                AV.controlsWidgetInstance.loaderPhase = 2
+                
+                // if scroll visible move controls to visible part of the page
+                var controls = $("#avpw_controls");
+                controls.css({
+                    'left': (window.outerWidth - controls.width() - 50)+'px',
+                    'top':  (window.innerHeight - controls.height() - 50 - window.scrollTop)+'px' 
+                });
+
+                $('#avpw_header a')
+                    .attr('href', "http://www.aviary.com/html5")
+                    .attr('target', "_blank");
+
+                console.log('Launch Complete');
+
+                $('#upload').removeClass('loading').html('Save and Upload');
+            }
+
+            Feather_OnLaunchComplete = function(){
+                var img = document.getElementById('image_for_edit'); 
+                
+                if (img.complete) {
+                    aviary_step2();
+                } else {
+                    img.onload = function() {
+                        aviary_step2();
+                    }
+                }
+            }
+
+            function launchEditor(imageid) { 
+                if (_featherLoaded) { 
+                    var img = document.getElementById(imageid); 
+                    aviaryeditor(imageid, "");            
+                } 
+            } 
+        </script> 
+        <script type="text/javascript" src="http://feather.aviary.com/js/feather.js"></script>  
+
+        <script>
+            browser.addMessageListener(function(msg, sender) {
+                if (msg.method == "uploadComplete") {
+                    window.close();
+                } else if (msg.method == "uploadProgress") {
+                    console.log(msg);
+                    $('#upload').html(parseInt(msg.progress)+"% uploaded");
+                }
+            });
+
+            browser.onReady(function(){
+              
+            });
+        </script>
+    </body>
+</html>
