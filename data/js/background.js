@@ -48,7 +48,7 @@
     var anim = new Animation(document.getElementById('img'), document.getElementById('canvas'), 11);
 
     browser.popupHeight = 400;
-    browser.popupWidth = 500;
+    browser.popupWidth = 400;
 
     function createGalleryClick(data) {
         // Gif file editing is forbided
@@ -56,7 +56,7 @@
             window.latest_screenshot = data.srcUrl;        
             browser.tabs.create({ url: browser.extension.getURL('/edit_image.html?title='+data.srcUrl) });
         } else {
-            uploadScreenshot(data.srcUrl, 'new', data.srcUrl);
+            uploadScreenshot(data.srcUrl, '', data.srcUrl);
         }
     }
 
@@ -129,6 +129,9 @@
     }
 
     function uploadScreenshot(base64Data, gallery_id, title) {
+        Minus.setUser(window.store.get('username'));
+        Minus.setToken(window.store.get('access_token'));
+
         var onProgress = function(progress) {
             console.log('updating progress');
 
@@ -141,9 +144,9 @@
         function upload() {
             var binaryData = atob(base64Data.replace(/^data\:image\/png\;base64\,/,''));
             
-            if (gallery_id == 'new') {
-                Minus.createGallery(function(gallery) {
-                    uploadItem(binaryData, gallery.reader_id, title, onProgress);
+            if (!gallery_id) {
+                Minus.createGallery(null, function(gallery) {
+                    uploadItem(binaryData, gallery.id, title, onProgress);
                 });
             } else {
                 uploadItem(binaryData, gallery_id, title, onProgress);
@@ -155,14 +158,14 @@
         } else {
             anim.start();
 
-            Minus.createGallery(function(gallery) {
-                Minus.uploadItemFromURL(base64Data, gallery.reader_id, function(resp){
+            Minus.createGallery(null, function(gallery) {
+                Minus.uploadItemFromURL(base64Data, gallery.id, function(resp){
                     anim.stop();
 
                     browser.toolbarItem.setText('');
                     
                     if (!resp.error)
-                        browser.tabs.create({ url: "http://minus.com/m"+gallery.reader_id });
+                        browser.tabs.create({ url: "http://minus.com/m"+gallery.id });
                     
                     browser.postMessage({ method: "uploadComplete" });
                 }, onProgress);
@@ -277,7 +280,7 @@
         browser.postMessage({ method: 'updateSettings', settings: settings }, receiver);
     }
 
-    var listener = function(msg, sender) {
+    var listener = function(msg, sender, sendResponse) {
         console.log('Received message', msg);
 
         switch (msg.method) {
@@ -297,7 +300,7 @@
                                         browser.postMessage({ method: "screenshotComplete" });
                                         browser.tabs.create({ url: browser.extension.getURL('/edit_image.html?title='+encodeURIComponent(tab.title)) });
                                     } else {
-                                        uploadScreenshot(imageData, 'new', tab.title)
+                                        uploadScreenshot(imageData, '', tab.title)
                                     }
                                 });
                             });
@@ -321,7 +324,7 @@
                                                 browser.tabs.create({ url: browser.extension.getURL('/edit_image.html?title='+tab.title) });
                                                 browser.postMessage({ method: "screenshotComplete" });                                  
                                             } else {
-                                                uploadScreenshot(imageData, 'new', tab.title)
+                                                uploadScreenshot(imageData, '', tab.title)
                                             }
                                         });
                                     });
@@ -347,7 +350,7 @@
                                             browser.tabs.create({ url: browser.extension.getURL('/edit_image.html?title='+tab.title) });
                                             browser.postMessage({ method: "screenshotComplete" });
                                         } else {
-                                            uploadScreenshot(image, 'new', tab.title)
+                                            uploadScreenshot(image, '', tab.title)
                                         }
                                     });
                                 });
@@ -375,6 +378,37 @@
                 updateSettings(msg.global ? undefined : sender.tab);
 
                 break;
+
+            case 'timeline':
+                Minus.timeline(msg.username, msg.timeline, msg.page, 
+                    function(resp) {
+                        sendResponse(resp);
+                    }
+                );
+
+                break;
+
+            case '_ajax':
+                var xhr;                
+                var send = function() { 
+                    console.log('sending response', sendResponse);
+
+                    sendResponse({
+                        status: xhr.status,
+                        responseText: xhr.responseText,
+                        responseHeaders: xhr.getAllResponseHeaders() 
+                    });
+                };
+
+                xhr = new Minus.Ajax(msg.httpOptions.url, {                    
+                    method: msg.httpOptions.method,                    
+                    headers: msg.httpOptions.headers,
+                    binaryData: msg.httpOptions.binary ? msg.httpOptions.data : null,
+                    params: msg.httpOptions.binary ? null : msg.httpOptions.data,
+
+                    onSuccess: send,
+                    onError: send
+                });
         }
     }
 
@@ -408,18 +442,4 @@
         updateSettings();
     });
 
-    Minus.getUsername(function(resp) {
-        if (!resp.error) {
-            window.store.set('username', resp.username);
-        } else {
-            window.store.set('username', "");
-        }
-    });
-
-    if (window.chrome) 
-        chrome.tabs.onUpdated.addListener(function(tab) {
-            if (tab.url && tab.url.match(/http:\/\/minus\.com/)) {
-                chrome.tabs.executeScript(null, { file:"js/minus_auth.js" });
-            }
-        });
 }());

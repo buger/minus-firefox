@@ -21,7 +21,7 @@
         $('#timeline a.active').removeClass('active');
         $('#timeline a[data-timeline='+timeline_type+']').addClass('active');
         
-        if (!skip_loader)
+        if (!skip_loader) 
             $('#my_galleries').html("<li class='loader'></li>");
 
         reinitializePane();
@@ -31,7 +31,7 @@
 
     var ICON_ARCHIVE = "../images/generic_file.png";
 
-    function updateGalleriesDOM() {
+    function updateGalleries() {
         Minus.timeline(window.store.get('username'), timeline_type, current_page, function(resp) {
             total_pages = resp.pages;
 
@@ -124,41 +124,15 @@
         });
     }
 
-
-    function updateGalleries() {        
-        if (browser.isFirefox) {
-            browser.postMessage({ 
-                method: 'updateGalleries', 
-                timeline: timeline_type, 
-                page: current_page
-            }, 
-            null,
-            function(resp) {
-                updateGalleriesDOM(resp.response);
-            });
-
-            return true;
-        }
-
-        Minus.timeline(timeline_type, current_page, function(resp) {
-            updateGalleriesDOM(resp);
-        });
-    }
-
     browser.addMessageListener(function(msg, sender) {
         $('#header').removeClass('loading');
 
         if (msg.method == "screenshotComplete") {
             updateTimeline();
         } else {
-            updateUser();
+            //updateUser();
         }
     });
-
-    browser.onReady(function(){
-      
-    });
-
 
     $('#take_screenshot').live('click', function(){
         var parent = $(this).parent();
@@ -210,7 +184,7 @@
         var form_data = $form.serializeArray();
 
         Minus.oauthToken(form_data[0].value, form_data[1].value, 
-            function(resp) {
+            function(resp) {                
                 if (resp.error) {
                     $('#signin .error').html('Wrong user/password combination.');
                 } else {
@@ -270,8 +244,6 @@
         var user = window.store.get('username');
         var token = window.store.get('access_token');        
         var skip_loader = window.store.get('last_view');
-
-        console.log(user, token);
         
         if (token && user) { 
             Minus.setToken(token);
@@ -282,9 +254,8 @@
                         function(refresh_resp) {
                             if (refresh_resp.error) {
                                 $('body').css({ 'width': '542px' });
-                                $('#signin').show();
-                                
                                 $('#main_content').hide();
+                                $('#signin').show();
                             } else {
                                 console.log(refresh_resp);
 
@@ -303,14 +274,13 @@
             $('#user').attr('href','http://minus.com/'+user);
         } else {
             $('body').css({ 'width': '542px' });            
-            $('#signin').show();
-                                
             $('#main_content').hide();
+            $('#signin').show();
         }
     }
 
     function updateUI() {
-       if (window.store.get('last_view')) {            
+        if (window.store.get('last_view')) {            
             $('#my_galleries').html(window.store.get('last_view'));
             $("#galleries_container")
                 .jScrollPane({
@@ -341,8 +311,6 @@
                 $(this).find('span').html(hotkey);
             });
 
-            console.log(tab);
-
             if (tab.url.match('https://') || tab.url.match('chrome://') || tab.url.match("file://")) {
                 $('#header *[data-screenshot-type=full], #header *[data-screenshot-type=region]').remove();
             }
@@ -354,8 +322,9 @@
             }
         });
     }
+    
 
-    $(document).ready(function() {    
+    browser.onReady(function() {    
         setTimeout(updateUI, 0);
     });
 

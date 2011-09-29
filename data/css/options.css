@@ -2,7 +2,7 @@ body {
     width: 600px;
     margin: 0 auto;
     padding-top: 50px;
-    font-family: Arial;
+    font-family: Helvetica, Arial;    
 }
 
 img {
@@ -10,8 +10,6 @@ img {
     outline: 0px !important;
     vertical-align: middle;
 }
-
-.clear { clear: both; }
 
 .header {
     font-size: 36px;
@@ -24,8 +22,7 @@ img {
     margin-right: 10px;
 }
 
-.options .float {
-    float: left;
+.options {
 }
 
 .options h3 {
@@ -60,32 +57,4 @@ img {
 .options ul.icon_type input {
     margin-left: 8px;
     cursor: pointer;
-}
-
-a.minus_button {
-    font-family: helvetica, arial, sans-serif;
-    background: #04C url(/smedia/minus/images/alert-overlay.png) repeat-x;                
-    display: inline-block;
-    color: white;
-    text-decoration: none;
-    -moz-border-radius: 5px;
-    -webkit-border-radius: 5px;
-    -moz-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
-    -webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
-    text-shadow: 0 -1px 1px rgba(0, 0, 0, 0.25);
-    border-bottom: 1px solid rgba(0, 0, 0, 0.25);
-    position: relative;
-    cursor: pointer;
-    padding: 5px 10px 6px;
-
-    font-size: 16px;
-    font-weight: 700;
-    line-height: 1;
-    text-shadow: 0 -1px 1px rgba(0, 0, 0, 0);
-
-    margin-left: 0px;
-}
-
-a.minus_button:hover {
-    background-color: #26F;
 }

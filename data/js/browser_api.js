@@ -62,15 +62,51 @@
         return r;
     }
 
-    if (navigator.userAgent.match('Firefox') != undefined) {
-        console.log(navigator.userAgent); 
-        /*
-        window.console = {
-            log: function() {
-                browser.postMessage({ _api: true, method: "log", message: joinArgs(arguments) });
+    function extend(destination, source) {
+        for (var property in source) {
+            if (source.hasOwnProperty(property)) {
+                destination[property] = source[property];
             }
-        }*/
+        }
+        return destination;
     }
+
+    var FFStore = {
+        synced:false,
+
+        data: {},
+       
+        sync: function() {
+            browser.broadcastMessage({ _api: true, method: 'updateStorage', data: FFStore.data },
+                function(msg) {
+                    extend(FFStore.data, msg.response);
+
+                    FFStore.synced = true;
+                    
+                    console.log('Synced!', FFStore.data);
+                }
+            )
+        },
+
+        set: function(key, value) {
+            FFStore.data[key] = value;
+
+            FFStore.sync();
+        },
+
+        get: function(key) {
+            console.log("Getting key", key);
+            return FFStore.data[key];
+        },
+
+        remove: function(key) {
+            FFStore.data[key] = null;
+
+            FFStore.sync();
+        }
+    }
+
+
 
     var browser = {
         isChrome: typeof(window.chrome) === "object",
@@ -237,11 +273,17 @@
                     browser._onReadyCallback();
                 }
             } else {             
-                browser._isNetworkInitialized = true;
-
+                browser._isNetworkInitialized = true;                
                 if (browser._onReadyCallback) {
                     console.log("Calling onReady callback", browser._isNetworkInitialized);
-                    browser._onReadyCallback();
+                    
+                    if (FFStore.synced) {
+                        browser._onReadyCallback();
+                    } else {
+                        setTimeout(function() {
+                            browser.onReady();
+                        }, 50);
+                    }
                 }
             }
         },
@@ -311,7 +353,7 @@
             } else if (browser.isSafari) {
                 browser._s_addMessageListener(listener);
             } else if (browser.isFirefox) {
-                browser._f_addMessageListener(listener);
+                browser._ff_addMessageListener(listener);
             }
         },
         
@@ -331,11 +373,15 @@
         _c_addMessageListener: function(listener) {
             chrome.extension.onRequest.addListener(listener);
             
-            browser.onReady();
+            
+            if (!browser._isNetworkInitialized) {
+                browser.onReady();
+            }
         },
 
         _c_removeMessageListeners: function() {
             console.log("Removing listeners:", this._listeners.length);
+
             for (var i=0; i<this._listener.length; i++) {
                 chrome.extension.onRequest.removeListener(this._listeners[i]);
             }
@@ -343,7 +389,10 @@
 
         _listener_initialized: false,
         
-        _f_addMessageListener: function(listener) {
+        _ff_message_in: null,
+        _ff_message_out: null,
+
+        _ff_addMessageListener: function(listener) {
             browser._listeners.push(listener);
             
             if (browser._listener_initialized) {
@@ -353,12 +402,16 @@
             }
                         
             function waitForDispatcher() {
-                var bridge = document.createElement('div');
-                bridge.id = "ff_message_bridge";
-                bridge.style.display = 'none';
-                document.body.appendChild(bridge);
-                
-                browser._ff_message_bridge = bridge;                
+                browser._ff_message_bridge = document.getElementById('ff_message_bridge');
+
+                if (!browser._ff_message_bridge) {
+                     var el = document.createElement('div');
+                     el.id = 'ff_message_bridge';
+                     el.style.display = 'none';
+                     document.body.appendChild(el);
+                    
+                     browser._ff_message_bridge = el;
+                }
 
                 if (document.body.className.match(/background/)) {
                     browser.page_type = "background";
@@ -383,6 +436,8 @@
                     }, false);
                 }
                 
+                FFStore.sync();
+
                 setInterval(function(){
                     var messages = browser._ff_message_bridge.querySelectorAll('.to_page');    
                     var length = messages.length;
@@ -399,18 +454,26 @@
                         }
                     }
                 }, 50);
-                
+
                 browser.onReady();
 
                 console.log("Document:", document.body.className, browser.page_type);
-                
+        
                 if (browser.page_type == "popup") {
+                    
                     var l = function (evt) {
+                        if (browser._width  === document.body.offsetWidth &&
+                            browser._height === document.body.offsetHeight)
+                            return setTimeout(l, 500);
+
+                        browser._width = document.body.offsetWidth;
+                        browser._height = document.body.offsetHeight;
+
                         browser.postMessage({
                             _api: true,
                             method: 'popupResize', 
-                            width: document.body.offsetWidth,
-                            height: document.body.offsetHeight
+                            width: browser._width,
+                            height: browser._height
                         });
                         
                         setTimeout(l, 500);
@@ -418,7 +481,6 @@
 
                     l();    
                 }
-                
             };
 
             waitForDispatcher();            
@@ -595,9 +657,9 @@
                     dest.dispatchMessage("_method", message) 
                 } else {
                     if (browser.isBackgroundPage) {
-                        chrome.tabs.sendRequest(dest.id, message);
+                        chrome.tabs.sendRequest(dest.id, message, callback);
                     } else {
-                        chrome.extension.sendRequest(message);
+                        chrome.extension.sendRequest(message, callback);
                     }
                 }
             } else {
@@ -642,21 +704,21 @@
                     safari.self.tab.dispatchMessage("_message", message);
                 }
             } else if (browser.isFirefox) {
-                if (!browser._ff_message_bridge)                    
+                if (!browser._ff_message_bridge)
                     return setTimeout(function(){ browser.broadcastMessage(message, callback) }, 50);
                 
                 if (callback) {
-                    console.log("Adding message listener", message);
+                    console.log("Adding message listener", message, callback);
 
                     if (!message.event_listener)
                         message.reply = true;
-                
+
                     var l = function(_msg, _sender) {
                         if (_msg.__id === message.__id) {
                             callback(_msg, _sender);
 
                             if (!message.event_listener) {
-                                console.log("Deleting message listener:", _msg.__id, message.method);
+                                console.log("Deleting message listener:", _msg);
                                 var idx = browser._listeners.indexOf(l);                            
                                 browser._listeners.splice(idx, 1);
                             }
@@ -790,4 +852,100 @@
     }())
     
     window.browser = browser;
+
+    
+    var FakeXMLHttpRequest = function() {
+        this.requestHeaders = {};
+        this.binary = false;
+        this.status = 0,
+        this.readyState = 1,
+
+        this.open = function(method, url, async) {
+            this.method = method;
+            this.url = url;
+            this.async = async;
+        }
+
+        this.send = function(data) {
+            var self = this;
+
+            browser.postMessage({ 
+                method: '_ajax',
+
+                _api: true,
+
+                httpOptions: {
+                    method: this.method,
+                    url: this.url,
+                    async: this.async,
+                    binary: this.binary,
+                    headers: this.requestHeaders,
+                    mime_type: this.mime_type,
+                    data: data
+                }
+            }, null, 
+                function(resp) {
+                    resp = resp.response;
+
+                    console.log("Ajax response", resp.response);
+
+                    self.readyState = 4;
+                    self.responseText = resp.responseText;
+                    self.responseHeaders = resp.responseHeaders;
+                    self.status = resp.status;
+
+                    if (self.onreadystatechange) {
+                        self.onreadystatechange();
+                    }
+                }
+            );
+        }
+
+        this.sendAsBinary = function(data) {
+            this.binary = true;
+
+            this.send(data);
+        }
+        
+        this.overrideMimeType = function(mime_type) {
+            this.mime_type = mime_type;
+        }
+
+        this.abort = function() {                   
+        }
+
+        this.setRequestHeader = function(header, value) {
+            this.requestHeaders[header] = value;
+        }
+        
+        this.getResponseHeader = function(header) {
+            return this.responseHeaders[header];            
+        }
+
+        this.getAllResponseHeaders = function() {
+            var headers = '';
+
+            for (key in this.responseHeaders) {
+                headers += key + ': ' + this.responseHeaders[key] + "\n";
+            }
+
+            return headers;
+        }
+    }
+
+    
+    window.FFStore = FFStore;
+
+    if (browser.isFirefox) {
+        window.store = FFStore;    
+
+        if (!browser.isBackgroundPage) {
+            window.XMLHttpRequest = FakeXMLHttpRequest;
+        }        
+    }
+
+
+    if (browser.isFirefox) {
+        document.body.className += " firefox";
+    }
 }(window));                    

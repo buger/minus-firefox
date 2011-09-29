@@ -18,6 +18,7 @@ a:hover {
 
 body {
     width: 380px;
+    height: auto;
     margin: 0;
     font-family: helvetica, arial;
     font-size: 14px;
@@ -29,7 +30,6 @@ body {
 #signin {
     width: 542px; 
     height: 330px !important;
-    height: 100%; 
     background: white; 
     border: 0px solid #ddd;    
     border-top: 1px solid rgba(0,0,0,0);
@@ -296,7 +296,6 @@ body {
     margin: 0;
     height: auto;
     max-height: 380px;
-    min-height: 100px;
     width: 100%;
     overflow-x: hidden;
     
@@ -430,7 +429,8 @@ body {
 
 .loading #take_screenshot {
     text-indent: -99999px;
-    background: url(../images/loading.gif) center no-repeat;
+    background-image: url(../images/loading.gif), url(../images/take_screenshot.png);
+    background-position: center, top center;
 }
 
 .loading .more {
@@ -466,6 +466,7 @@ a.button:hover {
 .center {
     text-align: center;
 }
+
 
 #footer {
     clear: both;
@@ -585,3 +586,14 @@ a.button:hover {
 .opera #header:after {
     content: "";
 }
+
+
+/********** Firefox css *********/
+.firefox #main_content {
+    padding-bottom: 10px;
+}
+
+.firefox #header li[data-screenshot-type='region'] {
+    display: none;
+}
+

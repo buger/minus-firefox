@@ -13,27 +13,7 @@
         </h1>
 
         <div class="options" style="visibility: hidden">
-            <div style="width: 40%" class="float">
-                <h3>Icon</h3>
-                <ul class="icon_type">
-                    <li style="text-align: center">
-                        <label for="icon_type_color">
-                            <img src="images/logo_small.png"/>
-                        </label>
-                        <br/>
-                        <input type="radio" name="icon_type" id="icon_type_color" value=''/>                    
-                    </li>
-                    <li style="text-align: center">
-                        <label for="icon_type_bw">
-                            <img src="images/logo_small_bw.png"/>
-                        </label>
-                        <br/>
-                        <input type="radio" name="icon_type" id="icon_type_bw" value='bw'/>                    
-                    </li>                
-                </ul>
-            </div>               
-
-            <div style="width: 60%" class="float">
+            <div>
                 <h3>Shortcuts</h3>
                 <ul class="shortcuts">
                     <li>
@@ -58,17 +38,12 @@
                     </li>                                   
                 </ul>
             </div>
-
-            <div class="clear"></div>
-            <div style="padding-top: 30px;">
-                <a class="minus_button" id="submit">Save & Close</a>
-            </div>
         </div>
         </form>
 
         <script src="js/jquery.min.js"></script>
-        <script src="js/browser_api.js"></script>        
         <script src="js/store.js"></script>
+        <script src="js/browser_api.js"></script>        
         <script>
             $('.shortcuts span').each(function(){
                 if (browser.isPlatform('mac')) {
@@ -77,6 +52,13 @@
                     this.innerHTML = "Ctrl+Alt+";
                 }
             });            
+            
+            browser.onReady(function() {
+                console.log('ready');
+            });
+
+            browser.addMessageListener(function() {
+            });
 
             browser.postMessage({ 
                 method: 'getSettings' 
@@ -87,27 +69,21 @@
 
             
             function initOptions(storage) {
-                if (storage.icon_type == 'bw') {
-                    $('#icon_type_bw').attr('checked', 'checked');
-                } else {
-                    $('#icon_type_color').attr('checked', 'checked');
-                }
-                
-                $('#visible_hotkey').val(storage.hotkey_visible);
-                $('#entire_hotkey').val(storage.hotkey_full);
+                $('#visible_hotkey').val(storage.shortcuts.visible.key);
+                $('#entire_hotkey').val(storage.shortcuts.entire.key);
 
                 $('.options').css({ 'visibility': 'visible' });
 
-                $('#submit').bind('click', function(){
-                    this.innerHTML = 'Saving...';
-
+                $('#visible_hotkey, #entire_hotkey').bind('change', function(){
                     var data = $('form').serializeArray();
 
+                    var shortcuts = {};
+
                     for (var i=0; i<data.length; i++) {
-                        store.set(data[i].name, data[i].value);                    
+                        shortcuts[data[i].name] = data[i].value; 
                     }
 
-                    browser.postMessage({ method: 'updateSettings' });
+                    browser.postMessage({ method: 'updateSettings', shortcuts: shortcuts });
                 });
             }
         </script>
