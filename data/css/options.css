@@ -32,6 +32,11 @@ img {
     margin-top: 30px;
 }
 
+.options .shortcuts select {
+    position: absolute;
+    z-index: 9999;
+}
+
 .options .shortcuts li {
     margin-top: 20px;
     font-size: 16px;
@@ -42,19 +47,11 @@ img {
     width: 200px;
 }
 
-.options ul.icon_type li {
-    display: inline-block;
-    width: 40px;
-    margin-right: 30px;
-    margin-top: 10px;
+.options input[type=text] {
+    width: 20px;
+    padding: 3px;
 }
 
-.options ul.icon_type label {
-    text-align: center;
-    cursor: pointer;
-}
-
-.options ul.icon_type input {
-    margin-left: 8px;
-    cursor: pointer;
+.firefox .shortcuts .selected {
+    display: none;
 }
